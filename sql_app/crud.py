@@ -1,3 +1,5 @@
+import random
+
 from sqlalchemy.orm import Session
 
 from . import models
@@ -20,7 +22,7 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
 
 
 def create_user(db: Session, user: schemas.UserCreate):
-    hash_password = None
+    hash_password = random.randint(1, 1000)
     new_user = models.User(login=user.login, email=user.email, hashed_password=hash_password)
     db.add(new_user)
     db.commit()
@@ -29,13 +31,15 @@ def create_user(db: Session, user: schemas.UserCreate):
 
 
 def get_blogs(db: Session, skip: int = 0, limit: int = 100):
-    blogs = db.query(models.Blog).offset(skip).limit(limit)
+    blogs = db.query(models.Blog).offset(skip).limit(limit).all()
     return blogs
 
 
 def get_user_blogs(db: Session, user_id: int):
     user = db.query(models.User).filter(models.User.id == user_id).first()
-    return user.blogs
+    if user is None:
+        return {"message": "User not found"}
+    return list(user.blogs)
 
 
 def create_blog(db: Session, blog: schemas.BlogPostBase, user_id: int):

@@ -9,4 +9,4 @@ app = FastAPI()
 
 
 app.include_router(user.router, prefix="/users")
-app.include_router(blog.router, prefix="/")
+app.include_router(blog.router, prefix="/items")

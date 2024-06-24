@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 import schemas
 from sqlalchemy.orm import Session
 
@@ -16,14 +16,16 @@ def read_blogs(skip: int = 0, limit: int = 100, db: Session = Depends(database.g
 @router.get("/{user_id}")
 def read_blog(user_id: int, db: Session = Depends(database.get_db)):
     blog = crud.get_user_blogs(db, user_id=user_id)
+    if blog is None:
+        return {"message": "no blogs yet"}
     return blog
 
 
 @router.post("/{user_id}")
 def create_blog(
-    user_id: int, blog: schemas.BlogPostBase, db: Session = Depends(database.get_db)
+    user_id: int, blog: schemas.BlogPostCreate, db: Session = Depends(database.get_db)
 ):
-    new_blog = crud.create_blog(db, user_id=user_id, **blog.dict())
+    new_blog = crud.create_blog(blog=blog, db=db, user_id=user_id)
     return new_blog
 
 

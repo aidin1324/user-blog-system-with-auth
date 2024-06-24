@@ -12,6 +12,10 @@ class BlogPostBase(BaseModel):
     )
 
 
+class BlogPostCreate(BlogPostBase):
+    pass
+
+
 class BlogPost(BlogPostBase):
     id: int = Field(
         ..., description="Blog id"
