@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from . import models
 import schemas
-
+from utils import utils
 
 def get_user(db: Session, user_id: int) -> schemas.User:
     user = db.query(models.User).filter(models.User.id == user_id).first()
@@ -22,7 +22,7 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
 
 
 def create_user(db: Session, user: schemas.UserCreate):
-    hash_password = random.randint(1, 1000)
+    hash_password = token.get_password_hash(user.password)
     new_user = models.User(login=user.login, email=user.email, hashed_password=hash_password)
     db.add(new_user)
     db.commit()

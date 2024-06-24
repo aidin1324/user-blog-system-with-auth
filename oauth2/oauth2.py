@@ -57,3 +57,15 @@ def get_current_user(
     user = db.query(models.User).filter(models.User.id == token.id).first()
 
     return user
+
+
+def get_current_active_user(current_user: models.User = Depends(get_current_user)):
+    if current_user.is_active:
+        return current_user
+    raise HTTPException(400, detail="Inactive user")
+
+
+def get_current_superuser(current_user: models.User = Depends(get_current_user)):
+    if current_user.is_super_user:
+        return current_user
+    raise HTTPException(400, detail="Inactive user")
