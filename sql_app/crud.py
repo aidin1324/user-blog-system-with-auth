@@ -42,7 +42,7 @@ def get_user_blogs(db: Session, user_id: int):
     return list(user.blogs)
 
 
-def create_blog(db: Session, blog: schemas.BlogPostBase, user_id: int):
+def create_blog(db: Session, blog: schemas.BlogPostCreate, user_id: int):
     blog = models.Blog(**blog.dict(), user_id=user_id)
     db.add(blog)
     db.commit()
@@ -50,6 +50,25 @@ def create_blog(db: Session, blog: schemas.BlogPostBase, user_id: int):
     return blog
 
 
+def update_blog(db: Session, blog_update: schemas.BlogPostUpdate, blog_id: int):
+    db_blog = db.query(models.Blog).filter(models.Blog.id == blog_id).first()
+    if not db_blog:
+        return None
+    for key, value in blog_update.dict().items():
+        setattr(db_blog, key, value)
+    db.commit()
+    db.refresh(db_blog)
+    return db_blog
+
+
+def delete_blog(db: Session, blog_id: int):
+    db_blog = db.query(models.Blog).filter(models.Blog.id == blog_id).first()
+    if not db_blog:
+        return None
+
+    db.delete(db_blog)
+    db.commit()
+    return {"message": "Blog successfully deleted"}
 
 
 
