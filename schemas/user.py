@@ -1,17 +1,23 @@
+
 from pydantic import BaseModel, EmailStr
 from typing import Union
+from schemas import BlogPost
 
 
 class UserBase(BaseModel):
     login: str
-    is_active: bool = True
-    is_superuser: bool = False
     email: Union[EmailStr, None] = None
 
 
-class UserIn(UserBase):
+class UserCreate(UserBase):
     password: str
 
 
-class UserOut(UserBase):
+class User(UserBase):
     id: int
+    is_active: bool = True
+    is_superuser: bool = False
+    blogs: list[BlogPost] = []
+
+    class Config:
+        orm_mode = True

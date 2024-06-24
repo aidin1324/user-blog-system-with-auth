@@ -1,22 +1,30 @@
-from fastapi import APIRouter
-from schemas import BlogPost, UserBase, UserIn, UserOut
+from fastapi import APIRouter, Depends
+import schemas
+from sqlalchemy.orm import Session
+
+from sql_app import crud, database
 
 router = APIRouter()
 
 
 @router.get("/")
-def blogs():
-    pass
+def read_blogs(skip: int = 0, limit: int = 100, db: Session = Depends(database.get_db)):
+    blogs = crud.get_blogs(db, skip, limit)
+    return blogs
 
 
-@router.get("/{id}")
-def blog(id: int):
-    pass
+@router.get("/{user_id}")
+def read_blog(user_id: int, db: Session = Depends(database.get_db)):
+    blog = crud.get_user_blogs(db, user_id=user_id)
+    return blog
 
 
-@router.post("/")
-def create_blog():
-    pass
+@router.post("/{user_id}")
+def create_blog(
+    user_id: int, blog: schemas.BlogPostBase, db: Session = Depends(database.get_db)
+):
+    new_blog = crud.create_blog(db, user_id=user_id, **blog.dict())
+    return new_blog
 
 
 @router.put("/{id}")

@@ -13,7 +13,12 @@ class BlogPostBase(BaseModel):
 
 
 class BlogPost(BlogPostBase):
+    id: int = Field(
+        ..., description="Blog id"
+    )
     user_id: int = Field(
         ..., description="id of user that blog belongs to"
     )
 
+    class Config:
+        orm_mode = True

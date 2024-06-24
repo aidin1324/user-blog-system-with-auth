@@ -1,2 +1,2 @@
-from blog import BlogPost
-from user import UserIn, UserOut, UserBase
+from blog import BlogPost, BlogPostBase
+from user import User, UserCreate, UserBase
