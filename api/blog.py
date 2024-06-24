@@ -1,31 +1,51 @@
-from fastapi import APIRouter
-from schemas import BlogPost, UserBase, UserIn, UserOut
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.exc import SQLAlchemyError
 
-router = APIRouter()
+import schemas
+from sqlalchemy.orm import Session
+
+from sql_app import crud, database
+
+router = APIRouter(tags=["blogs"])
 
 
 @router.get("/")
-def blogs():
-    pass
+def read_blogs(skip: int = 0, limit: int = 100, db: Session = Depends(database.get_db)):
+    blogs = crud.get_blogs(db, skip, limit)
+    return blogs
 
 
-@router.get("/{id}")
-def blog(id: int):
-    pass
+@router.get("/{user_id}")
+def read_blog(user_id: int, db: Session = Depends(database.get_db)):
+    blog = crud.get_user_blogs(db, user_id=user_id)
+    if blog is None:
+        return {"message": "no blogs yet"}
+    return blog
 
 
-@router.post("/")
-def create_blog():
-    pass
+@router.post("/{user_id}")
+def create_blog(
+    user_id: int, blog: schemas.BlogPostCreate, db: Session = Depends(database.get_db)
+):
+    try:
+        new_blog = crud.create_blog(blog=blog, db=db, user_id=user_id)
+    except SQLAlchemyError as e:
+        return HTTPException(status_code=500, detail=str(e))
+    return new_blog
 
 
-@router.put("/{id}")
-def update_blog(id: int):
-    pass
+@router.put("/{item_id}", response_model=schemas.BlogPost)
+def update_blog(blog_id: int, blog: schemas.BlogPostUpdate, db: Session = Depends(database.get_db)):
+    blog = crud.update_blog(db=db, blog_id=blog_id, blog_update=blog)
+    if blog is None:
+        return HTTPException(404, "Blog not found")
+    return blog
 
 
-@router.delete("/{id}")
-def delete_blog(id: int):
-    pass
-
+@router.delete("/{blog_id}")
+def delete_blog(blog_id: int, db: Session = Depends(database.get_db)):
+    result = crud.delete_blog(blog_id=blog_id, db=db)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Blog not found")
+    return result
 
