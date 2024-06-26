@@ -9,4 +9,5 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
+    user_id: int
     username: Union[str, None] = None

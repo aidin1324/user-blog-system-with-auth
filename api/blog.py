@@ -4,7 +4,7 @@ from sqlalchemy.exc import SQLAlchemyError
 import schemas
 from sqlalchemy.orm import Session
 
-from sql_app import crud, database
+from sql_app import crud, database, models
 
 router = APIRouter(tags=["blogs"])
 
@@ -13,14 +13,6 @@ router = APIRouter(tags=["blogs"])
 def read_blogs(skip: int = 0, limit: int = 100, db: Session = Depends(database.get_db)):
     blogs = crud.get_blogs(db, skip, limit)
     return blogs
-
-
-@router.get("/{user_id}")
-def read_blog(user_id: int, db: Session = Depends(database.get_db)):
-    blog = crud.get_user_blogs(db, user_id=user_id)
-    if blog is None:
-        return {"message": "no blogs yet"}
-    return blog
 
 
 @router.post("/{user_id}")
